@@ -17,6 +17,19 @@
   }
 }
 
+/* DataTable alternate row colors */
+.p-datatable .p-datatable-tbody > tr:nth-child(odd) {
+  background-color: #f3f4f6 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #e0f2fe !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #bfdbfe !important;
+}
+
 .hero {
   position: relative;
 

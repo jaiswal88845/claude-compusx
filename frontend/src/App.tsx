@@ -1,17 +1,16 @@
-import React from 'react';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import ExpenseSummary from './components/ExpenseSummary';
 import ExpenseList from './components/ExpenseList';
+import './styles/Layout.css';
 import './App.css';
 
 export default function App() {
   return (
-    <div className="app p-p-4">
-      <header className="p-mb-4">
-        <h1 className="p-m-0">CLAUDE CAMPUSX</h1>
-        <p className="p-text-secondary">Split Expenses</p>
-      </header>
+    <div className="layout">
+      <Header />
 
-      <main className="p-grid p-g-3">
+      <main className="layout-main p-grid p-g-3">
         <div className="p-col-12 p-md-4">
           <ExpenseSummary />
         </div>
@@ -19,6 +18,8 @@ export default function App() {
           <ExpenseList />
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
