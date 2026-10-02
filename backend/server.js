@@ -6,11 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("Claude CampusX Backend is running!");
+app.get('/', (req, res) => {
+    res.send('Claude CampusX Backend is running!');
 });
 
-const PORT = 5000;
+// API routes
+const expenseRoutes = require('./routes/expenseRoutes');
+app.use('/api', expenseRoutes);
+
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
