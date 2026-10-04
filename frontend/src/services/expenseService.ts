@@ -20,6 +20,19 @@ export interface UserSummary {
   balance: number;
 }
 
+export interface NewUser {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface RegisteredUser {
+  uid: number;
+  username: string;
+  email: string;
+  createdAt: string;
+}
+
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(path, {
     headers: {
@@ -52,4 +65,25 @@ export async function fetchExpenseById(id: number): Promise<Expense> {
 
 export async function fetchSummary(): Promise<{ totalExpenses: number; summary: UserSummary[] }> {
   return getJSON(`${getApiBase()}/summary`);
+}
+
+export async function registerUser(user: NewUser): Promise<RegisteredUser> {
+  const res = await fetch(`${getApiBase()}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(user),
+  });
+
+  if (!res.ok) {
+    let errorMessage = 'Registration failed';
+    try {
+      const data = await res.json();
+      errorMessage = data.error || errorMessage;
+    } catch {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
+  }
+
+  return res.json();
 }

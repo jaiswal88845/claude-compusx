@@ -8,17 +8,22 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Card } from 'primereact/card';
 
-export default function ExpenseList() {
+interface ExpenseListProps {
+  refreshKey?: number;
+}
+
+export default function ExpenseList({ refreshKey = 0 }: ExpenseListProps) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [selected, setSelected] = useState<Expense | null>(null);
   const [visible, setVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setError(null);
     fetchExpenses()
       .then(setExpenses)
       .catch((err) => setError(String(err)));
-  }, []);
+  }, [refreshKey]);
 
   const openExpense = async (id: number) => {
     try {

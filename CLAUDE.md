@@ -4,45 +4,109 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-A split-expense demo app (like Splitwise) with a separate Node/Express backend and React/Vite frontend. Data is in-memory (no database), seeded from a hardcoded module — no persistence layer exists yet despite `mongoose` being listed as a backend dependency.
+A split-expense demo app (like Splitwise) with a separate Node/Express backend and React/Vite frontend. The backend connects to MongoDB using Mongoose for persistent data storage.
 
 ## Commands
 
-Backend (from `backend/`):
+**Backend** (from `backend/`):
 ```
 npm install
-npm run start   # node server.js
-npm run dev      # nodemon server.js (auto-restart)
+npm run start    # node server.js
+npm run dev      # nodemon server.js (auto-restart on file changes)
 ```
 
-Frontend (from `frontend/`):
+**Frontend** (from `frontend/`):
 ```
 npm install
-npm run dev       # vite dev server
-npm run build     # vite build
-npm run lint      # eslint .
-npm run preview   # preview production build
+npm run dev      # vite dev server (http://localhost:5173)
+npm run build    # vite build for production
+npm run lint     # eslint .
+npm run preview  # preview production build locally
 ```
 
-There are no test scripts/frameworks configured in either package.
+**MongoDB Seeding** (from `backend/`):
+```
+# Run scripts in MongoDB shell to seed initial data
+mongosh < scripts/insertUsers.mongo.js
+mongosh < scripts/insertExpenses.mongo.js
+```
 
-Backend runs on `http://localhost:5000`; frontend expects the API at `http://localhost:5000/api` by default (override via `VITE_API_BASE` in a frontend `.env`).
+**Environment Setup**:
+- Backend requires `MONGO_URI` env var to connect to MongoDB (check `backend/.env`)
+- Frontend expects backend API at `http://localhost:5000/api` by default
+- Override frontend API base with `VITE_API_BASE` env var in `frontend/.env`
 
 ## Architecture
 
-**Backend** (`backend/`) — thin Express layer, three-tier structure:
-- `server.js` — app entry point, mounts CORS, JSON body parsing, and routes at `/api`
-- `routes/expenseRoutes.js` — route definitions only, delegates to controller
-- `controllers/expenseController.js` — request handlers; also computes the per-user balance summary (`getSummary`) by iterating all expenses: `paid` (sum where user is `paidBy`), `owes` (sum of that user's `participants` entries across all expenses), `balance = paid - owes`
-- `data/expenses.js` — in-memory seed data (`users` array of names, `expenses` array). Each expense has `paidBy` and a `participants` array of `{ user, amount }` splits. This is the single source of truth for data shape; any API/schema change starts here.
+### Backend (`backend/`) — Three-tier structure with MongoDB
 
-No persistence — restarting the server resets all data to the seed in `data/expenses.js`.
+**Entry point**: `server.js`
+- Mounts Express app with CORS and JSON body parsing
+- Routes all `/api` requests through `routes/expenseRoutes.js`
+- Connects to MongoDB via `config/db.js` on startup
+- Disables API response caching to ensure fresh data
 
-**Frontend** (`frontend/`) — React 19 + TypeScript + Vite, using PrimeReact/PrimeIcons/PrimeFlex for UI components and grid layout (`p-grid`, `p-col-*` classes alongside custom CSS).
-- `src/services/expenseService.ts` — single API client module; all backend calls and shared TS types (`Expense`, `Participant`, `UserSummary`) live here. `getApiBase()` resolves the backend URL. New endpoints should be added as functions here rather than calling `fetch` directly from components.
-- `src/components/` — `Header`, `Footer`, `ExpenseSummary`, `ExpenseList`, `ExpenseDetails`. `App.tsx` composes layout as Header / main (summary + list in a grid) / Footer.
-- `src/styles/` — component-specific CSS (e.g. `Header.css`, `Footer.css`, `Layout.css`) imported directly into components, alongside `App.css` and `index.css` for global styles.
+**Data layer**: `models/` (Mongoose schemas)
+- `User.js` — `{ username (unique), email (unique), password, timestamps }`
+- `Expense.js` — `{ description, category, amount, paidBy, date, participants (array), timestamps }`
+  - Participants are nested objects: `{ user (string), amount (number) }`
+
+**API layer**: `routes/expenseRoutes.js` + `controllers/expenseController.js`
+- `POST /api/users` — creates a new user (registration)
+  - Request: `{ username, email, password }`
+  - Response (201): `{ uid, username, email, createdAt }`
+  - Validates input (username 3–30 chars, valid email, password 8–72 chars)
+  - Returns `409` if username or email already exists; `400` on validation error
+  - Passwords hashed with bcrypt (cost 10); never returned in response
+- `GET /api/users` — returns array of usernames
+- `GET /api/expenses` — returns all expenses from DB
+- `GET /api/expenses/:id` — returns single expense by MongoDB ObjectId
+- `GET /api/summary` — computes and returns per-user balance summary:
+  - `paid` = sum of amounts where user is `paidBy`
+  - `owes` = sum of participant amounts for that user across all expenses
+  - `balance = paid - owes`
+
+**Seed scripts**: `scripts/insertUsers.mongo.js`, `scripts/insertExpenses.mongo.js`
+- Bulk insert seed data into MongoDB (replaces existing collections)
+- Run manually with `mongosh` when seeding the database
+
+### Frontend (`frontend/`) — React 19 + TypeScript + Vite
+
+**Styling**: Uses PrimeReact components + PrimeFlex grid system (`p-grid`, `p-col-*`) + custom CSS
+- Component-specific CSS imported directly (e.g., `Header.css`, `Footer.css`)
+- Global styles in `App.css` and `index.css`
+
+**Layout** (`App.tsx`):
+- Header / main (two-column grid: ExpenseSummary left, ExpenseList right) / Footer
+
+**Components**:
+- `Header.tsx` — navigation with Register button (accepts `onRegisterClick` prop)
+- `Footer.tsx` — static layout
+- `ExpenseSummary.tsx` — fetches `/api/summary`, displays totals and per-user balance; accepts optional `refreshKey` prop to refetch on registration
+- `ExpenseList.tsx` — fetches `/api/expenses`, displays list; accepts optional `refreshKey` prop to refetch on registration; includes `ExpenseDetails.tsx`
+- `RegisterUserModal.tsx` — PrimeReact Dialog for user registration; displays form with username, email, password fields; handles client-side validation and submission; props: `visible`, `onHide`, `onRegistered`
+
+**API client**: `services/expenseService.ts`
+- Single module for all backend calls; shared TypeScript interfaces live here
+- Resolves backend URL via `getApiBase()` (respects `VITE_API_BASE` env var)
+- Interfaces: `Participant`, `Expense`, `UserSummary`, `NewUser`, `RegisteredUser`
+- Functions: `fetchUsers()`, `fetchExpenses()`, `fetchExpenseById()`, `fetchSummary()`, `registerUser()`
+- Always add new endpoints as functions here rather than calling `fetch()` directly from components
 
 ## Data flow
 
-Frontend fetches from `/api/users`, `/api/expenses`, `/api/expenses/:id`, `/api/summary` → backend controller reads directly from the in-memory `data/expenses.js` arrays → shapes/aggregates are returned as-is or computed per-request (no caching).
+1. Frontend components import types and functions from `expenseService.ts`
+2. Frontend calls functions like `fetchExpenses()`, `fetchSummary()`, etc.
+3. These resolve the API base and fetch from backend
+4. Backend controller reads from MongoDB and computes summaries on-the-fly (no caching)
+5. Responses are shaped and returned to frontend
+
+## Key considerations
+
+- **No persistence layer in old code** — earlier versions used in-memory seed data; now all data persists in MongoDB
+- **Schema changes** — if adding fields to expenses or users, update both Mongoose models and seed scripts
+- **Balance computation** — done in `getSummary()` controller, not in frontend; watch participant amount rounding in edge cases
+- **Frontend-backend API contract** — defined by TypeScript interfaces in `expenseService.ts`; changes here must be coordinated with backend shape
+- **Password security** — all new user registration uses bcryptjs (cost 10) for hashing; passwords are never returned in API responses
+- **Data refresh** — `ExpenseSummary` and `ExpenseList` accept a `refreshKey` prop that triggers a refetch when incremented (used on successful user registration)
+- **User registration** — `RegisterUserModal` component is mounted in `App.tsx`; the modal is controlled via `registerOpen` state and `refreshKey` is incremented on success to refresh all data

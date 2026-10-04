@@ -1,7 +1,11 @@
 import React from 'react';
 import '../styles/Header.css';
 
-export default function Header() {
+interface HeaderProps {
+  onRegisterClick?: () => void;
+}
+
+export default function Header({ onRegisterClick }: HeaderProps) {
   return (
     <header className="header">
       <div className="header-container">
@@ -14,6 +18,14 @@ export default function Header() {
             <li><a href="/" className="nav-link active">Home</a></li>
             <li><a href="/expenses" className="nav-link">Expenses</a></li>
             <li><a href="/settings" className="nav-link">Settings</a></li>
+            <li>
+              <button
+                className="nav-link nav-button"
+                onClick={onRegisterClick}
+              >
+                Register
+              </button>
+            </li>
           </ul>
         </nav>
       </div>

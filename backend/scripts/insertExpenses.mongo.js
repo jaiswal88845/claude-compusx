@@ -3,33 +3,72 @@ db = db.getSiblingDB('splitwise');
 
 // Insert 2 expenses into the expenses collection
 const result = db.expenses.insertMany([
-  {
-    description: 'Dinner at restaurant',
+   {
+    description: 'Grocery shopping at Whole Foods',
     category: 'Food',
-    amount: 120,
-    paidBy: 'john_doe',
-    date: new Date('2026-10-01'),
+    amount: 125.50,
+    paidBy: 'jlj',
+    date: new Date('2026-07-15'),
     participants: [
-      { user: 'john_doe', amount: 60 },
-      { user: 'jane_smith', amount: 60 }
+      { user: 'jlj', amount: 62.75 },
+      { user: 'john_doe', amount: 62.75 }
     ],
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    description: 'Movie tickets',
-    category: 'Entertainment',
-    amount: 50,
-    paidBy: 'jane_smith',
-    date: new Date('2026-10-02'),
+    description: 'Gas station fill-up',
+    category: 'Travel',
+    amount: 65,
+    paidBy: 'jlj',
+    date: new Date('2026-08-02'),
     participants: [
-      { user: 'jane_smith', amount: 25 },
-      { user: 'john_doe', amount: 25 }
+      { user: 'jlj', amount: 65 }
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    description: 'Concert tickets - Taylor Swift',
+    category: 'Entertainment',
+    amount: 280,
+    paidBy: 'jlj',
+    date: new Date('2026-08-18'),
+    participants: [
+      { user: 'jlj', amount: 140 },
+      { user: 'jane_smith', amount: 140 }
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    description: 'Monthly utilities payment',
+    category: 'Utilities',
+    amount: 185,
+    paidBy: 'jlj',
+    date: new Date('2026-09-05'),
+    participants: [
+      { user: 'jlj', amount: 92.50 },
+      { user: 'john_doe', amount: 92.50 }
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    description: 'Weekend brunch with friends',
+    category: 'Food',
+    amount: 95.75,
+    paidBy: 'jlj',
+    date: new Date('2026-09-28'),
+    participants: [
+      { user: 'jlj', amount: 31.92 },
+      { user: 'john_doe', amount: 31.92 },
+      { user: 'jane_smith', amount: 31.91 }
     ],
     createdAt: new Date(),
     updatedAt: new Date()
   }
 ]);
 
-print('✓ Successfully inserted 2 expenses');
+print('✓ Successfully inserted 7 expenses (2 existing + 5 new for jlj)');
 print('Inserted IDs:', result.insertedIds);

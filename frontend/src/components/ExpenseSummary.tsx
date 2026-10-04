@@ -5,19 +5,24 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 
-export default function ExpenseSummary() {
+interface ExpenseSummaryProps {
+  refreshKey?: number;
+}
+
+export default function ExpenseSummary({ refreshKey = 0 }: ExpenseSummaryProps) {
   const [summary, setSummary] = useState<UserSummary[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setError(null);
     fetchSummary()
       .then((res) => {
         setTotal(res.totalExpenses);
         setSummary(res.summary);
       })
       .catch((err) => setError(String(err)));
-  }, []);
+  }, [refreshKey]);
 
   if (error) return <div className="p-error">Error: {error}</div>;
 
