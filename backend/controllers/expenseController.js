@@ -117,8 +117,48 @@ async function getSummary(req, res) {
   res.json({ totalExpenses, summary: Object.values(summary) });
 }
 
+async function loginUser(req, res) {
+  try {
+    const { username, password } = req.body;
+
+    // Validate input
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
+    // Find user by username
+    const user = await User.findOne({ username: trimmedUsername });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Compare password
+    const isPasswordValid = await bcrypt.compare(trimmedPassword, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Return user data without password
+    res.status(200).json({
+      uid: user.uid,
+      username: user.username,
+      email: user.email,
+      message: 'Login successful',
+    });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 module.exports = {
   createUser,
+  loginUser,
   getUsers,
   getExpenses,
   getExpenseById,

@@ -33,6 +33,13 @@ export interface RegisteredUser {
   createdAt: string;
 }
 
+export interface LoggedInUser {
+  uid: number;
+  username: string;
+  email: string;
+  message: string;
+}
+
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(path, {
     headers: {
@@ -76,6 +83,27 @@ export async function registerUser(user: NewUser): Promise<RegisteredUser> {
 
   if (!res.ok) {
     let errorMessage = 'Registration failed';
+    try {
+      const data = await res.json();
+      errorMessage = data.error || errorMessage;
+    } catch {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
+  }
+
+  return res.json();
+}
+
+export async function loginUser(username: string, password: string): Promise<LoggedInUser> {
+  const res = await fetch(`${getApiBase()}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!res.ok) {
+    let errorMessage = 'Login failed';
     try {
       const data = await res.json();
       errorMessage = data.error || errorMessage;

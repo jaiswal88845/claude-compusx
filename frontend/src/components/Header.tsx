@@ -3,9 +3,10 @@ import '../styles/Header.css';
 
 interface HeaderProps {
   onRegisterClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-export default function Header({ onRegisterClick }: HeaderProps) {
+export default function Header({ onRegisterClick, onLoginClick }: HeaderProps) {
   return (
     <header className="header">
       <div className="header-container">
@@ -18,6 +19,14 @@ export default function Header({ onRegisterClick }: HeaderProps) {
             <li><a href="/" className="nav-link active">Home</a></li>
             <li><a href="/expenses" className="nav-link">Expenses</a></li>
             <li><a href="/settings" className="nav-link">Settings</a></li>
+            <li>
+              <button
+                className="nav-link nav-button"
+                onClick={onLoginClick}
+              >
+                Login
+              </button>
+            </li>
             <li>
               <button
                 className="nav-link nav-button"
