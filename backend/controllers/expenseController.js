@@ -148,6 +148,7 @@ async function loginUser(req, res) {
       uid: user.uid,
       username: user.username,
       email: user.email,
+      createdAt: user.createdAt,
       message: 'Login successful',
     });
   } catch (error) {

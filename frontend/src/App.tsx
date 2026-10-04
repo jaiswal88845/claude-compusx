@@ -1,20 +1,28 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import ExpenseSummary from './components/ExpenseSummary';
-import ExpenseList from './components/ExpenseList';
-import RegisterUserModal from './components/RegisterUserModal';
-import LoginUserModal from './components/LoginUserModal';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import PrivateRoute from './components/PrivateRoute';
+import { getCurrentUser, setCurrentUser } from './services/authService';
 import type { LoggedInUser } from './services/expenseService';
 import './styles/Layout.css';
 import './App.css';
 
-export default function App() {
+function AppContent() {
+  const navigate = useNavigate();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentUser, setCurrentUserState] = useState(getCurrentUser());
   const toast = useRef<Toast>(null);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    setCurrentUserState(user);
+  }, []);
 
   const handleRegistered = () => {
     setRegisterOpen(false);
@@ -28,6 +36,8 @@ export default function App() {
   };
 
   const handleLoggedIn = (user: LoggedInUser) => {
+    setCurrentUser(user);
+    setCurrentUserState(user);
     setLoginOpen(false);
     setRefreshKey((k) => k + 1);
     toast.current?.show({
@@ -36,38 +46,52 @@ export default function App() {
       detail: `Welcome, ${user.username}!`,
       life: 3000,
     });
+    navigate('/profile');
   };
 
   return (
     <div className="layout">
       <Toast ref={toast} />
-      <Header 
+      <Header
         onRegisterClick={() => setRegisterOpen(true)}
         onLoginClick={() => setLoginOpen(true)}
+        currentUser={currentUser}
       />
 
-      <main className="layout-main p-grid p-g-3">
-        <div className="p-col-12 p-md-4">
-          <ExpenseSummary refreshKey={refreshKey} />
-        </div>
-        <div className="p-col-12 p-md-8">
-          <ExpenseList refreshKey={refreshKey} />
-        </div>
-      </main>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Dashboard
+              refreshKey={refreshKey}
+              onRegistered={handleRegistered}
+              onLoggedIn={handleLoggedIn}
+              registerOpen={registerOpen}
+              loginOpen={loginOpen}
+              onRegisterOpen={setRegisterOpen}
+              onLoginOpen={setLoginOpen}
+            />
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
 
       <Footer />
-
-      <RegisterUserModal
-        visible={registerOpen}
-        onHide={() => setRegisterOpen(false)}
-        onRegistered={handleRegistered}
-      />
-
-      <LoginUserModal
-        visible={loginOpen}
-        onHide={() => setLoginOpen(false)}
-        onLoggedIn={handleLoggedIn}
-      />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }

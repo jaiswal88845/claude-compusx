@@ -37,6 +37,7 @@ export interface LoggedInUser {
   uid: number;
   username: string;
   email: string;
+  createdAt: string;
   message: string;
 }
 

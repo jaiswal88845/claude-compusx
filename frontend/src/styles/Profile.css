@@ -1,0 +1,210 @@
+/* Profile Container - Main Layout */
+.profile-container {
+  padding: 1.5rem;
+}
+
+/* Profile Card Styling */
+.profile-card {
+  height: 100%;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.profile-card-header i {
+  font-size: 1.5rem;
+}
+
+/* Account Information Section */
+.account-info {
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 120px;
+  font-size: 0.95rem;
+}
+
+.info-value {
+  color: #333;
+  text-align: right;
+  flex: 1;
+  margin-left: 1rem;
+  word-break: break-word;
+  font-size: 0.95rem;
+}
+
+/* Stats Grid - 2x2 Layout */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1.25rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.stat-value.paid {
+  color: #28a745;
+}
+
+.stat-value.owes {
+  color: #dc3545;
+}
+
+.stat-value.positive {
+  color: #28a745;
+}
+
+.stat-value.negative {
+  color: #dc3545;
+}
+
+.stat-value.expense-count {
+  color: #007bff;
+  font-size: 2rem;
+}
+
+/* Loading State */
+.stats-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px;
+}
+
+/* Utility Classes */
+.w-100 {
+  width: 100%;
+}
+
+/* Responsive Design - Tablet (768px+) */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-item {
+    padding: 1rem 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .info-row {
+    padding: 0.5rem 0;
+  }
+}
+
+/* Responsive Design - Mobile (< 576px) */
+@media (max-width: 576px) {
+  .profile-container {
+    padding: 0.75rem;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+  }
+
+  .info-label {
+    margin-bottom: 0.25rem;
+    min-width: auto;
+  }
+
+  .info-value {
+    text-align: left;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat-item {
+    padding: 0.875rem 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .profile-card-header {
+    font-size: 1.1rem;
+  }
+
+  .profile-card-header i {
+    font-size: 1.25rem;
+  }
+}
+
+/* Responsive Design - Extra Small (< 375px) */
+@media (max-width: 375px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+
+  .info-label {
+    font-size: 0.85rem;
+  }
+
+  .info-value {
+    font-size: 0.85rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .stat-value.expense-count {
+    font-size: 1.5rem;
+  }
+}
