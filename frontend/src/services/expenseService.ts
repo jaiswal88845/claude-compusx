@@ -21,7 +21,15 @@ export interface UserSummary {
 }
 
 export async function getJSON<T>(path: string): Promise<T> {
-  const res = await fetch(path);
+  const res = await fetch(path, {
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
+  });
+  // Handle 304 Not Modified by re-fetching without cache headers
+  if (res.status === 304) {
+    return fetch(path, { cache: 'no-store' }).then(r => r.json());
+  }
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 }
